@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "1-pca"
+version = "0.1.0"
+description = ""
+authors = ["Alberto Lerda <alberto@dyne.org>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.13"
+numpy = "^1.26.1"
+nltk = "^3.8.1"
+pandas = "^2.1.1"
+matplotlib = "^3.8.0"
+
+
+[tool.poetry.group.dev.dependencies]
+hy = "^0.27.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
