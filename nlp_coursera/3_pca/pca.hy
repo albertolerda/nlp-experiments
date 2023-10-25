@@ -158,3 +158,58 @@
 
 (setv accuracy (get_accuracy word_embeddings data))
 (print f"Accuracy is {accuracy :.2f}")
+
+
+;;; TODO: problems with hy and numpy
+(defn compute_pca [X [n_components 2]]:
+    "
+    Input:
+        X: of dimension (m,n) where each row corresponds to a word vector
+        n_components: Number of components you want to keep.
+    Output:
+        X_reduced: data transformed in 2 dims/columns + regenerated original data
+    "
+
+    (print X.shape)
+    ; mean center the data
+    (setv X_demeaned (- X (np.mean X :axis 0)))
+    (print X_demeaned.shape)
+
+    ; calculate the covariance matrix
+    (setv covariance_matrix (np.cov X_demeaned :rowvar False))
+
+    ; calculate eigenvectors & eigenvalues of the covariance matrix
+    (setv [eigen_vals eigen_vecs] (np.linalg.eigh covariance_matrix))
+
+    ; sort eigenvalue in increasing order (get the indices from the sort)
+    (setv idx_sorted (np.argsort eigen_vals))
+    
+    ; reverse the order so that it's from highest to lowest.
+    (setv idx_sorted_decreasing (cut idx_sorted None None -1))
+
+    ; sort the eigen values by idx_sorted_decreasing
+    (setv eigen_vals_sorted (get eigen_vals idx_sorted))
+
+    ; sort eigenvectors using the idx_sorted_decreasing indices
+    (setv eigen_vecs_sorted (get eigen_vecs (slice 10) idx_sorted))
+
+    ; select the first n eigenvectors (n is desired dimension
+    ; of rescaled data array, or dims_rescaled_data)
+    (print eigen_vecs_sorted.shape)
+    (setv eigen_vecs_subset (np.transpose (get (np.transpose eigen_vecs_sorted) (slice n_components))))
+    (print eigen_vecs_subset.shape)
+
+    ; transform the data by multiplying the transpose of the eigenvectors 
+    ; with the transpose of the de-meaned data
+    ; Then take the transpose of that product.
+    (setv X_reduced (np.dot (np.transpose eigen_vecs_subset) (np.transpose X_demeaned)))
+
+    X_reduced)
+
+(defn test_compute_pca []
+    (np.random.seed 1)
+    (setv X (np.random.rand 3 10))
+    (setv X_reduced (compute_pca X :n_components 2))
+    (print (+ "Your original matrix was " (str X.shape) " and it became:"))
+    (print X_reduced))
+;; (test-compute-pca)
